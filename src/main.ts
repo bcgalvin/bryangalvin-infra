@@ -1,22 +1,33 @@
-import { App, Construct, Stack, StackProps } from '@aws-cdk/core';
+import { App, Stack, StackProps, Construct } from "@aws-cdk/core";
 
-export class MyStack extends Stack {
+import { AmplifyCICD } from "./amplify";
+
+const blogRepo = "bryangalvin-site";
+export class AmplifyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
-    // define resources here...
+    new AmplifyCICD(this, `${id}Cicd`, {
+      GitHubUsername: "bcgalvin",
+      GitHubRepoName: blogRepo,
+      GitHubPATSM: {
+        SecretName: "bcgalvin-github-pat",
+        SecretKey: "token",
+      },
+      FrontendBaseDirectory: "dist",
+      FrontendBuildCommand: "generate",
+      Domain: "bryangalvin.com",
+    });
   }
 }
 
-// for development, use account/region from cdk cli
-const devEnv = {
+const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
   region: process.env.CDK_DEFAULT_REGION,
 };
 
 const app = new App();
 
-new MyStack(app, 'my-stack-dev', { env: devEnv });
-// new MyStack(app, 'my-stack-prod', { env: prodEnv });
+new AmplifyStack(app, "amplify-stack", { env: env });
 
 app.synth();
