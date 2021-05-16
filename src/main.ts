@@ -1,11 +1,14 @@
 import { App, Stack, StackProps, Construct } from "@aws-cdk/core";
 
 import { AmplifyCICD } from "./amplify";
+import { DynamoDBTable } from "./dynamodb";
 
 const blogRepo = "bryangalvin-site";
 export class AmplifyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
+
+    new DynamoDBTable(this, `${id}Table`, "app-backend");
 
     new AmplifyCICD(this, `${id}Cicd`, {
       GitHubUsername: "bcgalvin",

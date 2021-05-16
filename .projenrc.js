@@ -8,7 +8,11 @@ const project = new AwsCdkTypeScriptApp({
   defaultReleaseBranch: "main",
   cdkVersion: cdkVersion,
   cdkVersionPinning: true,
-  cdkDependencies: ["@aws-cdk/aws-amplify", "@aws-cdk/aws-codebuild"],
+  cdkDependencies: [
+    "@aws-cdk/aws-amplify",
+    "@aws-cdk/aws-codebuild",
+    "@aws-cdk/aws-dynamodb",
+  ],
   eslintOptions: {
     prettier: true,
   },

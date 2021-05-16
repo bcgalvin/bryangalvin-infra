@@ -39,7 +39,7 @@ export class AmplifyCICD extends cdk.Construct {
       },
     };
 
-    const amplifyCICD = new amplify.App(this, "Pipeline", {
+    const amplifyCICD = new amplify.App(this, "pipeline", {
       appName: `${id}Pipeline`,
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
         owner: props.GitHubUsername,
@@ -55,11 +55,14 @@ export class AmplifyCICD extends cdk.Construct {
     });
 
     const mainBranch = amplifyCICD.addBranch("main");
-    const domain = amplifyCICD.addDomain(props.Domain);
-    domain.mapRoot(mainBranch);
 
-    new cdk.CfnOutput(this, "amplifyDefaultDomain", {
-      value: `https://main.${amplifyCICD.defaultDomain}`,
+    const domain = amplifyCICD.addDomain(props.Domain, {
+      subDomains: [{ branch: mainBranch, prefix: "www" }],
     });
+
+    domain.mapRoot(mainBranch);
+    amplifyCICD.addCustomRule(
+      amplify.CustomRule.SINGLE_PAGE_APPLICATION_REDIRECT
+    );
   }
 }
