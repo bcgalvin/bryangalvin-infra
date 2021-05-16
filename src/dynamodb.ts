@@ -7,6 +7,7 @@ export class DynamoDBTable extends cdk.Construct {
 
     new dynamodb.Table(this, tableName, {
       tableName,
+
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       partitionKey: {
         name: "pk",

@@ -18,7 +18,7 @@ export class AmplifyStack extends Stack {
         SecretKey: "token",
       },
       FrontendBaseDirectory: "dist",
-      FrontendBuildCommand: "generate",
+      FrontendBuildCommand: "build",
       Domain: "bryangalvin.com",
     });
   }

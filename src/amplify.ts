@@ -23,10 +23,10 @@ export class AmplifyCICD extends cdk.Construct {
       frontend: {
         phases: {
           preBuild: {
-            commands: ["ls -lah", "yarn"],
+            commands: ["npm install -g pnpm", "pnpm i"],
           },
           build: {
-            commands: [`yarn run ${props.FrontendBuildCommand}`],
+            commands: [`pnpm ${props.FrontendBuildCommand}`],
           },
         },
         artifacts: {
