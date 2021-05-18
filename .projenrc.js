@@ -1,6 +1,8 @@
 const { AwsCdkTypeScriptApp } = require("projen");
 
 const cdkVersion = "1.104.0";
+const commonExclude = [".DS_Store"];
+
 const project = new AwsCdkTypeScriptApp({
   name: "site-infra",
   jsiiFqn: "projen.AwsCdkTypeScriptApp",
@@ -17,5 +19,7 @@ const project = new AwsCdkTypeScriptApp({
     prettier: true,
   },
 });
+
+project.gitignore.exclude(...commonExclude);
 
 project.synth();
