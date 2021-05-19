@@ -19,7 +19,7 @@
     },
     {
       "name": "aws-cdk",
-      "version": "1.104.0",
+      "version": "1.105.0",
       "type": "build"
     },
     {
@@ -75,7 +75,7 @@
     },
     {
       "name": "projen",
-      "version": "^0.18.1",
+      "version": "^0.18.3",
       "type": "build"
     },
     {
@@ -97,27 +97,47 @@
     },
     {
       "name": "@aws-cdk/assert",
-      "version": "1.104.0",
+      "version": "1.105.0",
       "type": "runtime"
     },
     {
       "name": "@aws-cdk/aws-amplify",
-      "version": "1.104.0",
+      "version": "1.105.0",
       "type": "runtime"
     },
     {
       "name": "@aws-cdk/aws-codebuild",
-      "version": "1.104.0",
+      "version": "1.105.0",
       "type": "runtime"
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
-      "version": "1.104.0",
+      "version": "1.105.0",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-iam",
+      "version": "1.105.0",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-lambda-event-sources",
+      "version": "1.105.0",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-lambda-nodejs",
+      "version": "1.105.0",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-lambda",
+      "version": "1.105.0",
       "type": "runtime"
     },
     {
       "name": "@aws-cdk/core",
-      "version": "1.104.0",
+      "version": "1.105.0",
       "type": "runtime"
     }
   ],
