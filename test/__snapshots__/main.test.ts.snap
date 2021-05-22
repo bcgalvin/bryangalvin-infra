@@ -1,0 +1,328 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot 1`] = `
+Object {
+  "Parameters": Object {
+    "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613ArtifactHash6B6D8A0D": Object {
+      "Description": "Artifact hash for asset \\"36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613\\"",
+      "Type": "String",
+    },
+    "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613S3Bucket6F2D3337": Object {
+      "Description": "S3 bucket for asset \\"36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613\\"",
+      "Type": "String",
+    },
+    "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613S3VersionKey330B7F36": Object {
+      "Description": "S3 key for asset version \\"36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613\\"",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "testCicdpipeline9F3C6008": Object {
+      "Properties": Object {
+        "BuildSpec": "{
+  \\"version\\": 1,
+  \\"frontend\\": {
+    \\"phases\\": {
+      \\"preBuild\\": {
+        \\"commands\\": [
+          \\"nvm install\\",
+          \\"yarn\\"
+        ]
+      },
+      \\"build\\": {
+        \\"commands\\": [
+          \\"yarn build\\"
+        ]
+      }
+    },
+    \\"artifacts\\": {
+      \\"baseDirectory\\": \\"dist\\",
+      \\"files\\": [
+        \\"**/*\\"
+      ]
+    },
+    \\"cache\\": {
+      \\"paths\\": [
+        \\"node_modules/**/*\\"
+      ]
+    }
+  }
+}",
+        "CustomRules": Array [
+          Object {
+            "Source": "</^[^.]+$/>",
+            "Status": "200",
+            "Target": "/index.html",
+          },
+        ],
+        "IAMServiceRole": Object {
+          "Fn::GetAtt": Array [
+            "testCicdpipelineRoleFD8827EA",
+            "Arn",
+          ],
+        },
+        "Name": "testCicdPipeline",
+        "OauthToken": "{{resolve:secretsmanager:bcgalvin-github-pat:SecretString:token::}}",
+        "Repository": "https://github.com/bcgalvin/bryangalvin-site",
+      },
+      "Type": "AWS::Amplify::App",
+    },
+    "testCicdpipelineRoleFD8827EA": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "amplify.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "testCicdpipelinebryangalvincom46ACF6C9": Object {
+      "Properties": Object {
+        "AppId": Object {
+          "Fn::GetAtt": Array [
+            "testCicdpipeline9F3C6008",
+            "AppId",
+          ],
+        },
+        "AutoSubDomainCreationPatterns": Array [
+          "*",
+          "pr*",
+        ],
+        "AutoSubDomainIAMRole": Object {
+          "Fn::GetAtt": Array [
+            "testCicdpipelineRoleFD8827EA",
+            "Arn",
+          ],
+        },
+        "DomainName": "bryangalvin.com",
+        "EnableAutoSubDomain": false,
+        "SubDomainSettings": Array [
+          Object {
+            "BranchName": Object {
+              "Fn::GetAtt": Array [
+                "testCicdpipelinemainB76128A8",
+                "BranchName",
+              ],
+            },
+            "Prefix": "www",
+          },
+          Object {
+            "BranchName": Object {
+              "Fn::GetAtt": Array [
+                "testCicdpipelinemainB76128A8",
+                "BranchName",
+              ],
+            },
+            "Prefix": "",
+          },
+        ],
+      },
+      "Type": "AWS::Amplify::Domain",
+    },
+    "testCicdpipelinemainB76128A8": Object {
+      "Properties": Object {
+        "AppId": Object {
+          "Fn::GetAtt": Array [
+            "testCicdpipeline9F3C6008",
+            "AppId",
+          ],
+        },
+        "BranchName": "main",
+        "EnableAutoBuild": true,
+        "EnablePullRequestPreview": true,
+      },
+      "Type": "AWS::Amplify::Branch",
+    },
+    "testTableappbackend8E62D80C": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "pk",
+            "AttributeType": "S",
+          },
+          Object {
+            "AttributeName": "sk",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "pk",
+            "KeyType": "HASH",
+          },
+          Object {
+            "AttributeName": "sk",
+            "KeyType": "RANGE",
+          },
+        ],
+        "StreamSpecification": Object {
+          "StreamViewType": "NEW_AND_OLD_IMAGES",
+        },
+        "TableName": "app-backend",
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "testTableddbStreamLambda7AEF0AFB": Object {
+      "DependsOn": Array [
+        "testTableddbStreamLambdaServiceRoleDefaultPolicy98CC2ABC",
+        "testTableddbStreamLambdaServiceRoleC3BF408A",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613S3Bucket6F2D3337",
+          },
+          "S3Key": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                Object {
+                  "Fn::Select": Array [
+                    0,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613S3VersionKey330B7F36",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Fn::Select": Array [
+                    1,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters36fe4e49bec536315256ad5850ee4437881bd6ac4eaa5dcf9a45709e4ac95613S3VersionKey330B7F36",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+          },
+        },
+        "FunctionName": "PublishDynamoDBStreamsFunction",
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "testTableddbStreamLambdaServiceRoleC3BF408A",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 5,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "testTableddbStreamLambdaDynamoDBEventSourcetesttestTableappbackendF6DD9812FDE93BD5": Object {
+      "Properties": Object {
+        "BatchSize": 1,
+        "EventSourceArn": Object {
+          "Fn::GetAtt": Array [
+            "testTableappbackend8E62D80C",
+            "StreamArn",
+          ],
+        },
+        "FunctionName": Object {
+          "Ref": "testTableddbStreamLambda7AEF0AFB",
+        },
+        "StartingPosition": "LATEST",
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
+    },
+    "testTableddbStreamLambdaServiceRoleC3BF408A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "testTableddbStreamLambdaServiceRoleDefaultPolicy98CC2ABC": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "dynamodb:ListStreams",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:DescribeStream",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "testTableappbackend8E62D80C",
+                  "StreamArn",
+                ],
+              },
+            },
+            Object {
+              "Action": "dynamodb:*",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "testTableddbStreamLambdaServiceRoleDefaultPolicy98CC2ABC",
+        "Roles": Array [
+          Object {
+            "Ref": "testTableddbStreamLambdaServiceRoleC3BF408A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+}
+`;
