@@ -1,6 +1,6 @@
 const { AwsCdkTypeScriptApp } = require("projen");
 
-const cdkVersion = "1.105.0";
+const cdkVersion = "1.107.0";
 const commonExclude = [".DS_Store"];
 
 const project = new AwsCdkTypeScriptApp({
