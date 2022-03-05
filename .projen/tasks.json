@@ -1,8 +1,35 @@
 {
   "tasks": {
+    "build": {
+      "name": "build",
+      "description": "Full release build",
+      "steps": [
+        {
+          "spawn": "default"
+        },
+        {
+          "spawn": "pre-compile"
+        },
+        {
+          "spawn": "compile"
+        },
+        {
+          "spawn": "post-compile"
+        },
+        {
+          "spawn": "test"
+        },
+        {
+          "spawn": "package"
+        }
+      ]
+    },
+    "bundle": {
+      "name": "bundle",
+      "description": "Prepare assets"
+    },
     "clobber": {
       "name": "clobber",
-      "category": "30.maintain",
       "description": "hard resets to HEAD of origin and cleans the local repo",
       "env": {
         "BRANCH": "$(git branch --show-current)"
@@ -35,70 +62,202 @@
     },
     "compile": {
       "name": "compile",
-      "category": "00.build",
       "description": "Only compile"
     },
-    "test:compile": {
-      "name": "test:compile",
-      "category": "10.test",
-      "description": "compiles the test code",
+    "default": {
+      "name": "default",
+      "description": "Synthesize project files",
       "steps": [
         {
-          "exec": "tsc --noEmit --project tsconfig.jest.json"
+          "exec": "node .projenrc.js"
+        }
+      ]
+    },
+    "deploy": {
+      "name": "deploy",
+      "description": "Deploys your CDK app to the AWS cloud",
+      "steps": [
+        {
+          "exec": "cdk deploy"
+        }
+      ]
+    },
+    "destroy": {
+      "name": "destroy",
+      "description": "Destroys your cdk app in the AWS cloud",
+      "steps": [
+        {
+          "exec": "cdk destroy"
+        }
+      ]
+    },
+    "diff": {
+      "name": "diff",
+      "description": "Diffs the currently deployed app against your code",
+      "steps": [
+        {
+          "exec": "cdk diff"
+        }
+      ]
+    },
+    "eject": {
+      "name": "eject",
+      "description": "Remove projen from the project",
+      "env": {
+        "PROJEN_EJECTING": "true"
+      },
+      "steps": [
+        {
+          "spawn": "default"
+        }
+      ]
+    },
+    "eslint": {
+      "name": "eslint",
+      "description": "Runs eslint against the codebase",
+      "steps": [
+        {
+          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
+        }
+      ]
+    },
+    "format": {
+      "name": "format",
+      "description": "Format with prettier",
+      "steps": [
+        {
+          "exec": "prettier --write src/{**/,}*.ts test/{**/,}*.ts .projenrc.js README.md"
+        }
+      ]
+    },
+    "integ:site:assert": {
+      "name": "integ:site:assert",
+      "description": "assert the snapshot of integration test 'site'",
+      "steps": [
+        {
+          "exec": "[ -d \"test/site.integ.snapshot\" ] || (echo \"No snapshot available for integration test 'site'. Run 'projen integ:site:deploy' to capture.\" && exit 1)"
+        },
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/site.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/site.integ/assert.cdk.out > /dev/null"
+        },
+        {
+          "exec": "diff -r -x asset.* -x cdk.out -x manifest.json -x tree.json test/site.integ.snapshot/ test/.tmp/site.integ/assert.cdk.out/"
+        }
+      ]
+    },
+    "integ:site:deploy": {
+      "name": "integ:site:deploy",
+      "description": "deploy integration test 'site' and capture snapshot",
+      "steps": [
+        {
+          "exec": "rm -fr test/.tmp/site.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "cdk deploy --app \"ts-node -P tsconfig.dev.json test/site.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/site.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "rm -fr test/site.integ.snapshot"
+        },
+        {
+          "exec": "mv test/.tmp/site.integ/deploy.cdk.out test/site.integ.snapshot"
+        },
+        {
+          "spawn": "integ:site:destroy"
+        }
+      ]
+    },
+    "integ:site:destroy": {
+      "name": "integ:site:destroy",
+      "description": "destroy integration test 'site'",
+      "steps": [
+        {
+          "exec": "cdk destroy --app test/site.integ.snapshot '**' --no-version-reporting"
+        }
+      ]
+    },
+    "integ:site:snapshot": {
+      "name": "integ:site:snapshot",
+      "description": "update snapshot for integration test \"site\"",
+      "steps": [
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/site.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/site.integ.snapshot > /dev/null"
+        }
+      ]
+    },
+    "integ:site:watch": {
+      "name": "integ:site:watch",
+      "description": "watch integration test 'site' (without updating snapshots)",
+      "steps": [
+        {
+          "exec": "cdk watch --app \"ts-node -P tsconfig.dev.json test/site.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/site.integ/deploy.cdk.out"
+        }
+      ]
+    },
+    "integ:snapshot-all": {
+      "name": "integ:snapshot-all",
+      "description": "update snapshot for all integration tests",
+      "steps": [
+        {
+          "spawn": "integ:site:snapshot"
+        }
+      ]
+    },
+    "package": {
+      "name": "package",
+      "description": "Creates the distribution package"
+    },
+    "post-compile": {
+      "name": "post-compile",
+      "description": "Runs after successful compilation",
+      "steps": [
+        {
+          "spawn": "synth:silent"
+        }
+      ]
+    },
+    "post-upgrade": {
+      "name": "post-upgrade",
+      "description": "Runs after upgrading dependencies"
+    },
+    "pre-compile": {
+      "name": "pre-compile",
+      "description": "Prepare the project for compilation"
+    },
+    "synth": {
+      "name": "synth",
+      "description": "Synthesizes your cdk app into cdk.out",
+      "steps": [
+        {
+          "exec": "cdk synth"
+        }
+      ]
+    },
+    "synth:silent": {
+      "name": "synth:silent",
+      "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of \"yarn build\")",
+      "steps": [
+        {
+          "exec": "cdk synth > /dev/null"
         }
       ]
     },
     "test": {
       "name": "test",
-      "category": "10.test",
       "description": "Run tests",
       "steps": [
-        {
-          "exec": "rm -fr lib/"
-        },
-        {
-          "spawn": "test:compile"
-        },
         {
           "exec": "jest --passWithNoTests --all --updateSnapshot"
         },
         {
           "spawn": "eslint"
-        }
-      ]
-    },
-    "build": {
-      "name": "build",
-      "category": "00.build",
-      "description": "Full release build (test+compile)",
-      "steps": [
-        {
-          "exec": "npx projen"
         },
         {
-          "spawn": "test"
-        },
-        {
-          "spawn": "compile"
-        },
-        {
-          "spawn": "synth"
-        }
-      ]
-    },
-    "test:watch": {
-      "name": "test:watch",
-      "category": "10.test",
-      "description": "Run jest in watch mode",
-      "steps": [
-        {
-          "exec": "jest --watch"
+          "spawn": "integ:site:assert"
         }
       ]
     },
     "test:update": {
       "name": "test:update",
-      "category": "10.test",
       "description": "Update jest snapshots",
       "steps": [
         {
@@ -106,24 +265,48 @@
         }
       ]
     },
-    "upgrade-dependencies": {
-      "name": "upgrade-dependencies",
+    "test:watch": {
+      "name": "test:watch",
+      "description": "Run jest in watch mode",
+      "steps": [
+        {
+          "exec": "jest --watch"
+        }
+      ]
+    },
+    "upgrade": {
+      "name": "upgrade",
       "description": "upgrade dependencies",
       "env": {
         "CI": "0"
       },
       "steps": [
         {
-          "exec": "npm-check-updates --upgrade --target=minor --reject='projen'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='projen'"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier jest jest-junit json-schema npm-check-updates prettier ts-jest ts-node typescript @aws-cdk/assert @aws-cdk/aws-amplify @aws-cdk/aws-codebuild @aws-cdk/aws-dynamodb @aws-cdk/aws-iam @aws-cdk/aws-lambda-event-sources @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-lambda @aws-cdk/core"
+          "exec": "yarn upgrade @types/cfn-response @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk-lib aws-cdk constructs esbuild eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit json-schema npm-check-updates prettier ts-jest ts-node typescript @aws-cdk/aws-amplify-alpha aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"
+        },
+        {
+          "spawn": "post-upgrade"
         }
       ]
     },
@@ -135,7 +318,19 @@
       },
       "steps": [
         {
-          "exec": "npm-check-updates --upgrade --target=minor --filter='projen'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --filter='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --filter='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --filter='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --filter='projen'"
+        },
+        {
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --filter='projen'"
         },
         {
           "exec": "yarn install --check-files"
@@ -145,74 +340,21 @@
         },
         {
           "exec": "npx projen"
-        }
-      ]
-    },
-    "default": {
-      "name": "default",
-      "steps": [
+        },
         {
-          "exec": "node .projenrc.js"
+          "spawn": "post-upgrade"
         }
       ]
     },
     "watch": {
       "name": "watch",
-      "category": "00.build",
-      "description": "Watch & compile in the background",
+      "description": "Watches changes in your source code and rebuilds and deploys to the current account",
       "steps": [
         {
-          "exec": "tsc -w"
-        }
-      ]
-    },
-    "eslint": {
-      "name": "eslint",
-      "category": "10.test",
-      "description": "Runs eslint against the codebase",
-      "steps": [
+          "exec": "cdk deploy --hotswap"
+        },
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
-        }
-      ]
-    },
-    "synth": {
-      "name": "synth",
-      "category": "00.build",
-      "description": "Synthesizes your cdk app into cdk.out (part of \"yarn build\")",
-      "steps": [
-        {
-          "exec": "cdk synth"
-        }
-      ]
-    },
-    "deploy": {
-      "name": "deploy",
-      "category": "20.release",
-      "description": "Deploys your CDK app to the AWS cloud",
-      "steps": [
-        {
-          "exec": "cdk deploy"
-        }
-      ]
-    },
-    "destroy": {
-      "name": "destroy",
-      "category": "20.release",
-      "description": "Destroys your cdk app in the AWS cloud",
-      "steps": [
-        {
-          "exec": "cdk destroy"
-        }
-      ]
-    },
-    "diff": {
-      "name": "diff",
-      "category": "99.misc",
-      "description": "Diffs the currently deployed app against your code",
-      "steps": [
-        {
-          "exec": "cdk diff"
+          "exec": "cdk watch"
         }
       ]
     }

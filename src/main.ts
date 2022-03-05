@@ -1,25 +1,26 @@
-import { App, Stack, StackProps, Construct } from "@aws-cdk/core";
+import { App, Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
-import { AmplifyCICD } from "./amplify";
-import { DynamoDBTable } from "./dynamodb";
+import { AmplifyCICD } from './amplify';
+import { DynamoDBTable } from './dynamodb';
 
-const blogRepo = "bryangalvin-site";
+const blogRepo = 'bryangalvin-site';
 export class AmplifyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
-    new DynamoDBTable(this, `${id}Table`, "app-backend");
+    new DynamoDBTable(this, `${id}Table`, 'app-backend');
 
     new AmplifyCICD(this, `${id}Cicd`, {
-      GitHubUsername: "bcgalvin",
+      GitHubUsername: 'bcgalvin',
       GitHubRepoName: blogRepo,
       GitHubPATSM: {
-        SecretName: "bcgalvin-github-pat",
-        SecretKey: "token",
+        SecretName: 'bcgalvin-github-pat',
+        SecretKey: 'token',
       },
-      FrontendBaseDirectory: "dist",
-      FrontendBuildCommand: "build",
-      Domain: "bryangalvin.com",
+      FrontendBaseDirectory: 'dist',
+      FrontendBuildCommand: 'build',
+      Domain: 'bryangalvin.com',
     });
   }
 }
@@ -31,6 +32,6 @@ const env = {
 
 const app = new App();
 
-new AmplifyStack(app, "amplify-stack", { env: env });
+new AmplifyStack(app, 'amplify-stack', { env: env });
 
 app.synth();

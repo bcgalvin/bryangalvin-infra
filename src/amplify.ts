@@ -1,6 +1,7 @@
-import * as amplify from "@aws-cdk/aws-amplify";
-import * as codebuild from "@aws-cdk/aws-codebuild";
-import * as cdk from "@aws-cdk/core";
+import * as amplify from '@aws-cdk/aws-amplify-alpha';
+import * as cdk from 'aws-cdk-lib';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import { Construct } from 'constructs';
 
 interface AmplifyCICDProps extends cdk.StackProps {
   GitHubUsername: string;
@@ -14,8 +15,8 @@ interface AmplifyCICDProps extends cdk.StackProps {
   Domain: string;
 }
 
-export class AmplifyCICD extends cdk.Construct {
-  constructor(scope: cdk.Construct, id: string, props: AmplifyCICDProps) {
+export class AmplifyCICD extends Construct {
+  constructor(scope: Construct, id: string, props: AmplifyCICDProps) {
     super(scope, id);
 
     const buildSpecs = {
@@ -23,7 +24,7 @@ export class AmplifyCICD extends cdk.Construct {
       frontend: {
         phases: {
           preBuild: {
-            commands: ["nvm install", "yarn"],
+            commands: ['nvm install', 'yarn'],
           },
           build: {
             commands: [`yarn ${props.FrontendBuildCommand}`],
@@ -31,38 +32,33 @@ export class AmplifyCICD extends cdk.Construct {
         },
         artifacts: {
           baseDirectory: props.FrontendBaseDirectory,
-          files: ["**/*"],
+          files: ['**/*'],
         },
         cache: {
-          paths: ["node_modules/**/*"],
+          paths: ['node_modules/**/*'],
         },
       },
     };
 
-    const amplifyCICD = new amplify.App(this, "pipeline", {
+    const amplifyCICD = new amplify.App(this, 'pipeline', {
       appName: `${id}Pipeline`,
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
         owner: props.GitHubUsername,
         repository: props.GitHubRepoName,
-        oauthToken: cdk.SecretValue.secretsManager(
-          props.GitHubPATSM.SecretName,
-          {
-            jsonField: props.GitHubPATSM.SecretKey,
-          }
-        ),
+        oauthToken: cdk.SecretValue.secretsManager(props.GitHubPATSM.SecretName, {
+          jsonField: props.GitHubPATSM.SecretKey,
+        }),
       }),
       buildSpec: codebuild.BuildSpec.fromObject(buildSpecs),
     });
 
-    const mainBranch = amplifyCICD.addBranch("main");
+    const mainBranch = amplifyCICD.addBranch('main');
 
     const domain = amplifyCICD.addDomain(props.Domain, {
-      subDomains: [{ branch: mainBranch, prefix: "www" }],
+      subDomains: [{ branch: mainBranch, prefix: 'www' }],
     });
 
     domain.mapRoot(mainBranch);
-    amplifyCICD.addCustomRule(
-      amplify.CustomRule.SINGLE_PAGE_APPLICATION_REDIRECT
-    );
+    amplifyCICD.addCustomRule(amplify.CustomRule.SINGLE_PAGE_APPLICATION_REDIRECT);
   }
 }
